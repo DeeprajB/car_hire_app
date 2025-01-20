@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car Hire - Pickup Locations</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      body {
+        background-color: #f5f5f5;
+        min-height: 100vh;
+        width: 100%;
+        overflow-x: hidden;
+      }
+
+      .header {
+        background: #007bff;
+        color: white;
+        padding: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .back-button {
+        background: none;
+        border: none;
+        color: white;
+        padding: 8px;
+        margin-right: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+      }
+
+      .header h2 {
+        font-size: 20px;
+        margin: 0;
+        color: white;
+        flex: 1;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .booking-summary {
+        background: white;
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .summary-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 12px;
+      }
+
+      .summary-detail {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .summary-detail strong {
+        color: #333;
+      }
+
+      .section-title {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 16px;
+        font-weight: 600;
+      }
+
+      .pickup-locations {
+        display: none;
+      }
+
+      .pickup-locations.visible {
+        display: grid;
+      }
+
+      .pickup-location {
+        background: white;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: transform 0.2s;
+        border: 2px solid transparent;
+      }
+
+      .pickup-location.selected {
+        border-color: #007bff;
+        background-color: #f8f9ff;
+      }
+
+      .pickup-location:active {
+        transform: scale(0.98);
+      }
+
+      .location-name {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+      }
+
+      .location-address {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 8px;
+      }
+
+      .location-hours {
+        font-size: 12px;
+        color: #999;
+      }
+
+      .continue-button {
+        width: 100%;
+        padding: 16px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 24px;
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+      }
+
+      .continue-button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .continue-button:active {
+        transform: scale(0.98);
+      }
+
+      .city-selector {
+        background: white;
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .city-dropdown {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        outline: none;
+        margin-top: 8px;
+      }
+
+      .city-dropdown:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+
+      .locations-grid {
+        display: grid;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <button class="back-button" onclick="history.back()">
+        <span class="material-icons">arrow_back</span>
+      </button>
+      <h2>Select Location</h2>
+    </header>
+
+    <div class="content">
+      <div class="booking-summary">
+        <div class="summary-title">Booking Summary</div>
+        <div class="summary-detail">
+          <span>Country:</span>
+          <strong id="countryDisplay"></strong>
+        </div>
+        <div class="summary-detail">
+          <span>Date:</span>
+          <strong id="dateDisplay"></strong>
+        </div>
+        <div class="summary-detail">
+          <span>Time:</span>
+          <strong id="timeDisplay"></strong>
+        </div>
+      </div>
+
+      <div class="city-selector">
+        <div class="section-title">Select City</div>
+        <select class="city-dropdown" id="citySelect">
+          <option value="">Choose a city</option>
+        </select>
+      </div>
+
+      <div class="pickup-locations" id="pickupLocations">
+        <div class="section-title">Available Pickup Locations</div>
+        <div class="locations-grid">
+          <!-- Pickup locations will be added here -->
+        </div>
+      </div>
+
+      <button class="continue-button" id="continueButton" disabled>
+        Continue
+      </button>
+    </div>
+
+    <script>
+      // Get URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const country = urlParams.get("country");
+      const date = urlParams.get("date");
+      const startTime = urlParams.get("startTime");
+      const endTime = urlParams.get("endTime");
+
+      // Update summary
+      document.getElementById("countryDisplay").textContent = country;
+      document.getElementById("dateDisplay").textContent = date;
+      document.getElementById(
+        "timeDisplay"
+      ).textContent = `${startTime} - ${endTime}`;
+
+      // Cities data (in real app, this would come from an API based on selected country)
+      const citiesByCountry = {
+        "United Kingdom": [
+          "London",
+          "Manchester",
+          "Birmingham",
+          "Edinburgh",
+          "Liverpool",
+          "Glasgow",
+        ],
+        France: ["Paris", "Lyon", "Marseille", "Nice", "Bordeaux", "Toulouse"],
+        Germany: [
+          "Berlin",
+          "Munich",
+          "Hamburg",
+          "Frankfurt",
+          "Cologne",
+          "Stuttgart",
+        ],
+        Japan: ["Tokyo", "Osaka", "Kyoto", "Yokohama", "Sapporo", "Fukuoka"],
+        Australia: [
+          "Sydney",
+          "Melbourne",
+          "Brisbane",
+          "Perth",
+          "Adelaide",
+          "Gold Coast",
+        ],
+        "United States": [
+          "New York",
+          "Los Angeles",
+          "Chicago",
+          "Houston",
+          "Phoenix",
+          "Philadelphia",
+        ],
+        Netherlands: [
+          "Amsterdam",
+          "Rotterdam",
+          "The Hague",
+          "Utrecht",
+          "Eindhoven",
+          "Groningen",
+        ],
+        Italy: ["Venice", "Rome", "Milan", "Florence", "Naples", "Turin"],
+        Spain: [
+          "Madrid",
+          "Barcelona",
+          "Valencia",
+          "Seville",
+          "Malaga",
+          "Bilbao",
+        ],
+        Sweden: [
+          "Stockholm",
+          "Gothenburg",
+          "Malmo",
+          "Uppsala",
+          "Vasteras",
+          "Orebro",
+        ],
+        "United Arab Emirates": [
+          "Dubai",
+          "Abu Dhabi",
+          "Sharjah",
+          "Ajman",
+          "Ras Al Khaimah",
+          "Fujairah",
+        ],
+        Singapore: [
+          "Singapore",
+          "Woodlands",
+          "Tampines",
+          "Jurong East",
+          "Punggol",
+          "Sengkang",
+        ],
+        "South Korea": [
+          "Seoul",
+          "Busan",
+          "Incheon",
+          "Daegu",
+          "Daejeon",
+          "Gwangju",
+        ],
+        Canada: [
+          "Toronto",
+          "Vancouver",
+          "Montreal",
+          "Calgary",
+          "Ottawa",
+          "Edmonton",
+        ],
+        India: [
+          "Mumbai",
+          "Delhi",
+          "Bangalore",
+          "Chennai",
+          "Kolkata",
+          "Hyderabad",
+        ],
+        "South Africa": [
+          "Cape Town",
+          "Johannesburg",
+          "Durban",
+          "Pretoria",
+          "Port Elizabeth",
+          "Bloemfontein",
+        ],
+        Norway: [
+          "Oslo",
+          "Bergen",
+          "Trondheim",
+          "Stavanger",
+          "Drammen",
+          "Fredrikstad",
+        ],
+        Austria: [
+          "Vienna",
+          "Salzburg",
+          "Graz",
+          "Innsbruck",
+          "Linz",
+          "Klagenfurt",
+        ],
+        Switzerland: [
+          "Zurich",
+          "Geneva",
+          "Basel",
+          "Bern",
+          "Lausanne",
+          "Lucerne",
+        ],
+        Belgium: ["Brussels", "Antwerp", "Ghent", "Bruges", "Liege", "Leuven"],
+        Portugal: ["Lisbon", "Porto", "Faro", "Braga", "Coimbra", "Funchal"],
+        Denmark: [
+          "Copenhagen",
+          "Aarhus",
+          "Odense",
+          "Aalborg",
+          "Esbjerg",
+          "Randers",
+        ],
+        Finland: ["Helsinki", "Tampere", "Turku", "Oulu", "Espoo", "Vantaa"],
+      };
+
+      // Populate city dropdown
+      const citySelect = document.getElementById("citySelect");
+      const cities = citiesByCountry[country] || [];
+      cities.forEach((city) => {
+        const option = document.createElement("option");
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+      });
+
+      // Sample pickup locations (in real app, this would come from an API)
+      const locationsByCity = {
+        // United Kingdom
+        London: [
+          {
+            name: "Heathrow Airport T5",
+            address: "Terminal 5, Heathrow Airport",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Central London",
+            address: "123 Oxford Street",
+            hours: "7:00 AM - 10:00 PM",
+          },
+          {
+            name: "London Victoria",
+            address: "Victoria Station, SW1V 1JU",
+            hours: "6:00 AM - 11:00 PM",
+          },
+        ],
+        Manchester: [
+          {
+            name: "Manchester Airport",
+            address: "Terminal 2, Manchester Airport",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Manchester Piccadilly",
+            address: "Piccadilly Station",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "City Centre",
+            address: "45 Market Street",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Birmingham: [
+          {
+            name: "Birmingham Airport",
+            address: "Terminal 1, Birmingham Airport",
+            hours: "Open 24/7",
+          },
+          {
+            name: "New Street Station",
+            address: "New Street",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Bullring",
+            address: "Bullring Shopping Centre",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Edinburgh: [
+          {
+            name: "Edinburgh Airport",
+            address: "Terminal Building, Edinburgh Airport",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Waverley Station",
+            address: "Waverley Station, City Centre",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Royal Mile",
+            address: "45 Royal Mile",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Liverpool: [
+          {
+            name: "Liverpool John Lennon Airport",
+            address: "Terminal Building, LPL",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Liverpool Lime Street",
+            address: "Lime Street Station",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Liverpool ONE",
+            address: "5 Wall Street",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Glasgow: [
+          {
+            name: "Glasgow Airport",
+            address: "Terminal Building, GLA",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Glasgow Central",
+            address: "Gordon Street",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Buchanan Street",
+            address: "155 Buchanan Street",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+
+        // France
+        Paris: [
+          {
+            name: "Charles de Gaulle Airport",
+            address: "Terminal 2E, CDG Airport",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Gare du Nord",
+            address: "18 Rue de Dunkerque",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Central Paris",
+            address: "24 Avenue des Champs-Élysées",
+            hours: "8:00 AM - 9:00 PM",
+          },
+        ],
+        Lyon: [
+          {
+            name: "Lyon Airport",
+            address: "Terminal 1B, Saint-Exupéry Airport",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Lyon Part-Dieu",
+            address: "Part-Dieu Station",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Bellecour",
+            address: "Place Bellecour",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Marseille: [
+          {
+            name: "Marseille Airport",
+            address: "Terminal 1, Marseille Provence",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Saint-Charles Station",
+            address: "Square Narvik",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Vieux-Port",
+            address: "Quai des Belges",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Nice: [
+          {
+            name: "Nice Côte d'Azur Airport",
+            address: "Terminal 2, NCE",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Nice Ville Station",
+            address: "Avenue Thiers",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Promenade des Anglais",
+            address: "2 Promenade des Anglais",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Bordeaux: [
+          {
+            name: "Bordeaux Airport",
+            address: "Terminal B, BOD",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Gare Saint-Jean",
+            address: "Rue Charles Domercq",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Place de la Bourse",
+            address: "Place de la Bourse",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Toulouse: [
+          {
+            name: "Toulouse Airport",
+            address: "Terminal 1, TLS",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Toulouse-Matabiau",
+            address: "64 Boulevard Pierre Semard",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Capitole",
+            address: "Place du Capitole",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+
+        // Germany
+        Berlin: [
+          {
+            name: "Berlin Brandenburg Airport",
+            address: "Terminal 1, BER",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Berlin Central Station",
+            address: "Europaplatz 1",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Alexanderplatz",
+            address: "Alexanderplatz 1",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Munich: [
+          {
+            name: "Munich Airport",
+            address: "Terminal 2, MUC",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Munich Central Station",
+            address: "Bayerstraße 10",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Karlsplatz",
+            address: "Karlsplatz 1",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Hamburg: [
+          {
+            name: "Hamburg Airport",
+            address: "Terminal 1, HAM",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Hamburg Central Station",
+            address: "Hachmannplatz 16",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Jungfernstieg",
+            address: "Jungfernstieg 1",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Frankfurt: [
+          {
+            name: "Frankfurt Airport",
+            address: "Terminal 1, FRA",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Frankfurt Central Station",
+            address: "Am Hauptbahnhof",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          { name: "Zeil", address: "Zeil 106", hours: "8:00 AM - 8:00 PM" },
+        ],
+        Cologne: [
+          {
+            name: "Cologne Bonn Airport",
+            address: "Terminal 1, CGN",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Cologne Central Station",
+            address: "Trankgasse 11",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Dom/Hauptbahnhof",
+            address: "Domplatz 1",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Stuttgart: [
+          {
+            name: "Stuttgart Airport",
+            address: "Terminal 3, STR",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Stuttgart Central Station",
+            address: "Arnulf-Klett-Platz 2",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Königstraße",
+            address: "Königstraße 1",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+
+        // Japan
+        Tokyo: [
+          {
+            name: "Narita International Airport",
+            address: "Terminal 2, NRT",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Tokyo Station",
+            address: "1-9-1 Marunouchi",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Shinjuku Station",
+            address: "3-38-1 Shinjuku",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Osaka: [
+          {
+            name: "Kansai International Airport",
+            address: "Terminal 1, KIX",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Osaka Station",
+            address: "3-1-1 Umeda",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Namba Station",
+            address: "2-10-70 Namba",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Kyoto: [
+          {
+            name: "Kyoto Station",
+            address: "Karasuma Exit, Kyoto Station",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Gion District",
+            address: "Gion-machi",
+            hours: "8:00 AM - 8:00 PM",
+          },
+          {
+            name: "Arashiyama",
+            address: "12 Saga-Arashiyama",
+            hours: "9:00 AM - 7:00 PM",
+          },
+        ],
+
+        // Continuing Japan
+        Yokohama: [
+          {
+            name: "Yokohama Station",
+            address: "1-1-1 Nishi-ku",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Minato Mirai",
+            address: "2-3-1 Minato Mirai",
+            hours: "8:00 AM - 8:00 PM",
+          },
+          {
+            name: "Sakuragicho",
+            address: "Sakuragicho Station",
+            hours: "7:00 AM - 10:00 PM",
+          },
+        ],
+        Sapporo: [
+          {
+            name: "New Chitose Airport",
+            address: "Terminal 1, CTS",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Sapporo Station",
+            address: "North 6 West 4",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Odori Park",
+            address: "Odori Station",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Fukuoka: [
+          {
+            name: "Fukuoka Airport",
+            address: "Terminal 2, FUK",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Hakata Station",
+            address: "1-1 Hakataeki-Chuogai",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          { name: "Tenjin", address: "2-1 Tenjin", hours: "8:00 AM - 8:00 PM" },
+        ],
+
+        // Australia
+        Sydney: [
+          {
+            name: "Sydney Airport",
+            address: "Terminal 1, International",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Central Station",
+            address: "Central Station, Eddy Avenue",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Circular Quay",
+            address: "2 Circular Quay",
+            hours: "7:00 AM - 10:00 PM",
+          },
+        ],
+        Melbourne: [
+          {
+            name: "Melbourne Airport",
+            address: "Terminal 2, MEL",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Southern Cross Station",
+            address: "Spencer Street",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Federation Square",
+            address: "Swanston Street",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Brisbane: [
+          {
+            name: "Brisbane Airport",
+            address: "Terminal 1, BNE",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Central Station",
+            address: "Ann Street",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "South Bank",
+            address: "Stanley Place",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Perth: [
+          {
+            name: "Perth Airport",
+            address: "Terminal 1, PER",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Perth Station",
+            address: "Wellington Street",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Elizabeth Quay",
+            address: "The Esplanade",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Adelaide: [
+          {
+            name: "Adelaide Airport",
+            address: "Terminal 1, ADL",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Adelaide Station",
+            address: "North Terrace",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Rundle Mall",
+            address: "Rundle Mall",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        "Gold Coast": [
+          {
+            name: "Gold Coast Airport",
+            address: "Terminal 1, OOL",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Surfers Paradise",
+            address: "Cavill Avenue",
+            hours: "7:00 AM - 10:00 PM",
+          },
+          {
+            name: "Broadbeach",
+            address: "Victoria Avenue",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+
+        // United States
+        "New York": [
+          {
+            name: "JFK Airport",
+            address: "Terminal 4, JFK International",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Manhattan Downtown",
+            address: "234 Broadway",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Times Square",
+            address: "1560 Broadway",
+            hours: "7:00 AM - 10:00 PM",
+          },
+        ],
+        "Los Angeles": [
+          {
+            name: "LAX Airport",
+            address: "Terminal B, LAX",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Downtown LA",
+            address: "800 N Alameda St",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Santa Monica",
+            address: "1334 Third Street",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Chicago: [
+          {
+            name: "O'Hare Airport",
+            address: "Terminal 5, ORD",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Union Station",
+            address: "225 S Canal St",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Magnificent Mile",
+            address: "401 N Michigan Ave",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Houston: [
+          {
+            name: "George Bush Airport",
+            address: "Terminal C, IAH",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Downtown Houston",
+            address: "1001 Texas Ave",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Galleria",
+            address: "5085 Westheimer Rd",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Phoenix: [
+          {
+            name: "Sky Harbor Airport",
+            address: "Terminal 4, PHX",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Downtown Phoenix",
+            address: "400 E Van Buren St",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Scottsdale",
+            address: "4000 N Scottsdale Rd",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Philadelphia: [
+          {
+            name: "Philadelphia Airport",
+            address: "Terminal A, PHL",
+            hours: "Open 24/7",
+          },
+          {
+            name: "30th Street Station",
+            address: "2955 Market St",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "City Center",
+            address: "1500 Market St",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+
+        // Netherlands
+        Amsterdam: [
+          {
+            name: "Schiphol Airport",
+            address: "Arrival Hall 2, AMS",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Amsterdam Central",
+            address: "Stationsplein",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          { name: "Dam Square", address: "Dam 1", hours: "8:00 AM - 8:00 PM" },
+        ],
+        Rotterdam: [
+          {
+            name: "Rotterdam Airport",
+            address: "Rotterdam Airportplein 60",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Rotterdam Central",
+            address: "Weena 67",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Markthal",
+            address: "Dominee Jan Scharpstraat 298",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        "The Hague": [
+          {
+            name: "The Hague Central",
+            address: "Koningin Julianaplein 10",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Scheveningen Beach",
+            address: "Strandweg 13",
+            hours: "8:00 AM - 8:00 PM",
+          },
+          {
+            name: "City Center",
+            address: "Spui 68",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Utrecht: [
+          {
+            name: "Utrecht Central",
+            address: "Stationsplein 1",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "City Center",
+            address: "Oudegracht 139",
+            hours: "8:00 AM - 8:00 PM",
+          },
+          {
+            name: "Utrecht Science Park",
+            address: "Heidelberglaan 100",
+            hours: "7:00 AM - 9:00 PM",
+          },
+        ],
+        Eindhoven: [
+          {
+            name: "Eindhoven Airport",
+            address: "Terminal 1, EIN",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Eindhoven Station",
+            address: "Stationsplein 22",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "City Center",
+            address: "18 Septemberplein",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Groningen: [
+          {
+            name: "Groningen Station",
+            address: "Stationsplein 4",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Grote Markt",
+            address: "Grote Markt 1",
+            hours: "8:00 AM - 8:00 PM",
+          },
+          {
+            name: "University Area",
+            address: "Broerstraat 5",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+
+        // Italy
+        Venice: [
+          {
+            name: "Marco Polo Airport",
+            address: "Terminal 1, VCE",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Piazzale Roma",
+            address: "Piazzale Roma",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Santa Lucia Station",
+            address: "Fondamenta Santa Lucia",
+            hours: "7:00 AM - 10:00 PM",
+          },
+        ],
+        Rome: [
+          {
+            name: "Fiumicino Airport",
+            address: "Terminal 3, FCO",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Roma Termini",
+            address: "Via Giovanni Giolitti 40",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Colosseum",
+            address: "Via dei Fori Imperiali",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Milan: [
+          {
+            name: "Malpensa Airport",
+            address: "Terminal 1, MXP",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Milano Centrale",
+            address: "Piazza Duca d'Aosta",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Duomo",
+            address: "Piazza del Duomo",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Florence: [
+          {
+            name: "Florence Airport",
+            address: "Terminal 1, FLR",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Santa Maria Novella",
+            address: "Piazza della Stazione",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Historic Center",
+            address: "Piazza della Repubblica",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Naples: [
+          {
+            name: "Naples Airport",
+            address: "Terminal 1, NAP",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Napoli Centrale",
+            address: "Piazza Garibaldi",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Port Area",
+            address: "Molo Beverello",
+            hours: "7:00 AM - 9:00 PM",
+          },
+        ],
+        Turin: [
+          {
+            name: "Turin Airport",
+            address: "Terminal Arrivals, TRN",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Porta Nuova Station",
+            address: "Corso Vittorio Emanuele II",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "City Center",
+            address: "Piazza Castello",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+
+        // Spain
+        Madrid: [
+          {
+            name: "Madrid Airport T4",
+            address: "Terminal 4, MAD",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Atocha Station",
+            address: "Glorieta del Emperador Carlos V",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Puerta del Sol",
+            address: "Plaza Puerta del Sol",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Barcelona: [
+          {
+            name: "El Prat Airport",
+            address: "Terminal 1, BCN",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Sants Station",
+            address: "Plaça dels Països Catalans",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Plaza Catalunya",
+            address: "Plaça de Catalunya",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Valencia: [
+          {
+            name: "Valencia Airport",
+            address: "Terminal 1, VLC",
+            hours: "Open 24/7",
+          },
+          {
+            name: "North Station",
+            address: "Carrer de Xàtiva",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "City Center",
+            address: "Plaza del Ayuntamiento",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Seville: [
+          {
+            name: "Seville Airport",
+            address: "Terminal 1, SVQ",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Santa Justa Station",
+            address: "Avenida Kansas City",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Historic Center",
+            address: "Plaza Nueva",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Malaga: [
+          {
+            name: "Malaga Airport",
+            address: "Terminal 3, AGP",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Maria Zambrano Station",
+            address: "Explanada de la Estación",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "City Center",
+            address: "Plaza de la Constitución",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Bilbao: [
+          {
+            name: "Bilbao Airport",
+            address: "Terminal 1, BIO",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Abando Station",
+            address: "Plaza Circular",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Guggenheim Museum",
+            address: "Avenida Abandoibarra",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+
+        // Sweden
+        Stockholm: [
+          {
+            name: "Arlanda Airport",
+            address: "Terminal 5, ARN",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Stockholm Central",
+            address: "Centralplan 15",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Gamla Stan",
+            address: "Västerlånggatan 6",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Gothenburg: [
+          {
+            name: "Landvetter Airport",
+            address: "Terminal 1, GOT",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Central Station",
+            address: "Drottningtorget 5",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Avenyn",
+            address: "Kungsportsavenyen 25",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Malmo: [
+          {
+            name: "Malmo Airport",
+            address: "Terminal 1, MMX",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Malmo Central",
+            address: "Centralplan 1",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Stortorget",
+            address: "Stortorget 1",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Uppsala: [
+          {
+            name: "Uppsala Central",
+            address: "Stationsgatan 1",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "City Center",
+            address: "Stora Torget",
+            hours: "8:00 AM - 8:00 PM",
+          },
+          {
+            name: "University Area",
+            address: "S:t Olofsgatan 10",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Vasteras: [
+          {
+            name: "Vasteras Airport",
+            address: "Terminal 1, VST",
+            hours: "6:00 AM - 10:00 PM",
+          },
+          {
+            name: "Central Station",
+            address: "Stationsplan 1",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "City Center",
+            address: "Stora Gatan 42",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+        Orebro: [
+          {
+            name: "Orebro Airport",
+            address: "Terminal Building, ORB",
+            hours: "6:00 AM - 10:00 PM",
+          },
+          {
+            name: "Central Station",
+            address: "Östra Bangatan 1",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Stortorget",
+            address: "Stortorget 1",
+            hours: "8:00 AM - 8:00 PM",
+          },
+        ],
+
+        // United Arab Emirates
+        Dubai: [
+          {
+            name: "Dubai International Airport",
+            address: "Terminal 3, DXB",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Dubai Mall",
+            address: "Financial Center Road",
+            hours: "8:00 AM - 11:00 PM",
+          },
+          {
+            name: "Marina District",
+            address: "Dubai Marina Mall",
+            hours: "8:00 AM - 10:00 PM",
+          },
+        ],
+        "Abu Dhabi": [
+          {
+            name: "Abu Dhabi Airport",
+            address: "Terminal 1, AUH",
+            hours: "Open 24/7",
+          },
+          {
+            name: "City Center",
+            address: "Hamdan Street",
+            hours: "8:00 AM - 10:00 PM",
+          },
+          {
+            name: "Yas Island",
+            address: "Yas Mall",
+            hours: "8:00 AM - 10:00 PM",
+          },
+        ],
+        Sharjah: [
+          {
+            name: "Sharjah Airport",
+            address: "Terminal 1, SHJ",
+            hours: "Open 24/7",
+          },
+          {
+            name: "City Center",
+            address: "Al Wahda Street",
+            hours: "8:00 AM - 10:00 PM",
+          },
+          {
+            name: "Al Majaz",
+            address: "Corniche Street",
+            hours: "8:00 AM - 10:00 PM",
+          },
+        ],
+        Ajman: [
+          {
+            name: "Ajman City Center",
+            address: "Sheikh Khalifa Bin Zayed St",
+            hours: "8:00 AM - 10:00 PM",
+          },
+          {
+            name: "Al Zawra",
+            address: "Corniche Road",
+            hours: "8:00 AM - 10:00 PM",
+          },
+          {
+            name: "Al Jurf",
+            address: "Al Jurf 1",
+            hours: "8:00 AM - 10:00 PM",
+          },
+        ],
+        "Ras Al Khaimah": [
+          {
+            name: "RAK Airport",
+            address: "Terminal Building, RKT",
+            hours: "Open 24/7",
+          },
+          {
+            name: "City Center",
+            address: "Al Qawasim Corniche",
+            hours: "8:00 AM - 10:00 PM",
+          },
+          {
+            name: "Al Hamra",
+            address: "Al Hamra Mall",
+            hours: "8:00 AM - 10:00 PM",
+          },
+        ],
+        Fujairah: [
+          {
+            name: "Fujairah Airport",
+            address: "Terminal Building, FJR",
+            hours: "Open 24/7",
+          },
+          {
+            name: "City Center",
+            address: "Hamad Bin Abdullah Road",
+            hours: "8:00 AM - 10:00 PM",
+          },
+          {
+            name: "Al Faseel",
+            address: "Fujairah Mall",
+            hours: "8:00 AM - 10:00 PM",
+          },
+        ],
+
+        // Singapore
+        Singapore: [
+          {
+            name: "Changi Airport T3",
+            address: "Terminal 3, SIN",
+            hours: "Open 24/7",
+          },
+          {
+            name: "Orchard Road",
+            address: "333 Orchard Road",
+            hours: "8:00 AM - 10:00 PM",
+          },
+          {
+            name: "Marina Bay",
+            address: "10 Bayfront Avenue",
+            hours: "8:00 AM - 10:00 PM",
+          },
+        ],
+        Woodlands: [
+          {
+            name: "Woodlands Station",
+            address: "30 Woodlands Avenue 2",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Causeway Point",
+            address: "1 Woodlands Square",
+            hours: "8:00 AM - 10:00 PM",
+          },
+          {
+            name: "Woodlands Civic",
+            address: "900 South Woodlands Drive",
+            hours: "8:00 AM - 10:00 PM",
+          },
+        ],
+        Tampines: [
+          {
+            name: "Tampines MRT",
+            address: "20 Tampines Central 1",
+            hours: "6:00 AM - 11:00 PM",
+          },
+          {
+            name: "Tampines Mall",
+            address: "4 Tampines Central 5",
+            hours: "8:00 AM - 10:00 PM",
+          },
+          {
+            name: "Century Square",
+            address: "2 Tampines Central 5",
+            hours: "8:00 AM - 10:00 PM",
+          },
+        ],
+      };
+
+      const pickupLocationsDiv = document.getElementById("pickupLocations");
+      const locationsGrid = pickupLocationsDiv.querySelector(".locations-grid");
+      const continueButton = document.getElementById("continueButton");
+      let selectedLocation = null;
+
+      // Handle city selection
+      citySelect.addEventListener("change", function () {
+        const selectedCity = this.value;
+        if (!selectedCity) {
+          pickupLocationsDiv.classList.remove("visible");
+          continueButton.disabled = true;
+          return;
+        }
+
+        // Show pickup locations for selected city
+        pickupLocationsDiv.classList.add("visible");
+        locationsGrid.innerHTML = ""; // Clear existing locations
+
+        const locations = locationsByCity[selectedCity] || [];
+        locations.forEach((location) => {
+          const div = document.createElement("div");
+          div.className = "pickup-location";
+          div.innerHTML = `
+            <div class="location-name">${location.name}</div>
+            <div class="location-address">${location.address}</div>
+            <div class="location-hours">${location.hours}</div>
+          `;
+
+          div.addEventListener("click", () => {
+            document.querySelectorAll(".pickup-location").forEach((el) => {
+              el.classList.remove("selected");
+            });
+            div.classList.add("selected");
+            selectedLocation = location;
+            continueButton.disabled = false;
+          });
+
+          locationsGrid.appendChild(div);
+        });
+      });
+
+      // Handle continue button click
+      continueButton.addEventListener("click", () => {
+        if (selectedLocation && citySelect.value) {
+          // Get all the necessary details
+          const pickupDetails = {
+            country: country,
+            city: citySelect.value,
+            date: date,
+            startTime: startTime,
+            endTime: endTime,
+            pickupLocation: selectedLocation.name,
+            pickupAddress: selectedLocation.address,
+            pickupHours: selectedLocation.hours,
+          };
+
+          // Construct the URL with all parameters
+          const nextPageUrl =
+            `../vehicle-selection/index.html?` +
+            `country=${encodeURIComponent(pickupDetails.country)}` +
+            `&city=${encodeURIComponent(pickupDetails.city)}` +
+            `&date=${encodeURIComponent(pickupDetails.date)}` +
+            `&startTime=${encodeURIComponent(pickupDetails.startTime)}` +
+            `&endTime=${encodeURIComponent(pickupDetails.endTime)}` +
+            `&pickup=${encodeURIComponent(pickupDetails.pickupLocation)}` +
+            `&address=${encodeURIComponent(pickupDetails.pickupAddress)}` +
+            `&hours=${encodeURIComponent(pickupDetails.pickupHours)}`;
+
+          // Navigate to vehicle selection page
+          window.location.href = nextPageUrl;
+        }
+      });
+    </script>
+  </body>
+</html>

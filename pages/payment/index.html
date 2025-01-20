@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      body {
+        background-color: #f5f5f5;
+        padding-bottom: 70px;
+        min-height: 100vh;
+      }
+
+      .header {
+        background: #007bff;
+        color: white;
+        padding: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header h2 {
+        font-size: 20px;
+        margin: 0;
+      }
+
+      .amount-display {
+        background: white;
+        margin: 16px;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      .amount-label {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 8px;
+      }
+
+      .amount-value {
+        font-size: 32px;
+        font-weight: bold;
+        color: #007bff;
+      }
+
+      .payment-form {
+        background: white;
+        margin: 16px;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: border-color 0.2s;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: #007bff;
+      }
+
+      .card-row {
+        display: flex;
+        gap: 16px;
+      }
+
+      .card-row .form-group {
+        flex: 1;
+      }
+
+      .card-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+      }
+
+      .card-number-container {
+        position: relative;
+      }
+
+      .pay-button {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #28a745;
+        color: white;
+        padding: 16px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 18px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .pay-button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .pay-button:not(:disabled):hover {
+        background: #218838;
+      }
+
+      .error-message {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 4px;
+        display: none;
+      }
+
+      .secure-note {
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+        margin: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .secure-note .material-icons {
+        color: #28a745;
+        font-size: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h2>Payment Details</h2>
+    </div>
+
+    <div class="amount-display">
+      <div class="amount-label">Total Amount to Pay</div>
+      <div class="amount-value" id="totalAmount"></div>
+    </div>
+
+    <form class="payment-form" id="paymentForm">
+      <div class="form-group">
+        <label for="cardName">Cardholder Name</label>
+        <input type="text" id="cardName" placeholder="Name on card" required />
+        <div class="error-message" id="nameError">
+          Please enter the cardholder name
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="cardNumber">Card Number</label>
+        <div class="card-number-container">
+          <input
+            type="text"
+            id="cardNumber"
+            placeholder="1234 5678 9012 3456"
+            maxlength="19"
+            required
+          />
+          <span class="material-icons card-icon">credit_card</span>
+        </div>
+        <div class="error-message" id="numberError">
+          Please enter a valid card number
+        </div>
+      </div>
+
+      <div class="card-row">
+        <div class="form-group">
+          <label for="expiryDate">Expiry Date</label>
+          <input
+            type="text"
+            id="expiryDate"
+            placeholder="MM/YY"
+            maxlength="5"
+            required
+          />
+          <div class="error-message" id="expiryError">
+            Please enter a valid expiry date
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cvv">CVV</label>
+          <input
+            type="text"
+            id="cvv"
+            placeholder="123"
+            maxlength="3"
+            required
+          />
+          <div class="error-message" id="cvvError">
+            Please enter a valid CVV
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="secure-note">
+      <span class="material-icons">lock</span>
+      Your payment information is secure and encrypted
+    </div>
+
+    <button class="pay-button" id="payButton">Pay Now</button>
+
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const totalPrice = urlParams.get("totalPrice");
+
+      // Display total amount
+      document.getElementById("totalAmount").textContent = `$${totalPrice}`;
+
+      // Format card number with spaces
+      document.getElementById("cardNumber").addEventListener("input", (e) => {
+        let value = e.target.value.replace(/\s/g, "");
+        let formattedValue = value.replace(/(\d{4})/g, "$1 ").trim();
+        e.target.value = formattedValue;
+      });
+
+      // Format expiry date
+      document.getElementById("expiryDate").addEventListener("input", (e) => {
+        let value = e.target.value.replace(/\D/g, "");
+        if (value.length >= 2) {
+          value = value.slice(0, 2) + "/" + value.slice(2);
+        }
+        e.target.value = value;
+      });
+
+      // Allow only numbers in CVV
+      document.getElementById("cvv").addEventListener("input", (e) => {
+        e.target.value = e.target.value.replace(/\D/g, "");
+      });
+
+      // Validate form
+      function validateForm() {
+        let isValid = true;
+        const cardName = document.getElementById("cardName");
+        const cardNumber = document.getElementById("cardNumber");
+        const expiryDate = document.getElementById("expiryDate");
+        const cvv = document.getElementById("cvv");
+
+        // Reset error messages
+        document.querySelectorAll(".error-message").forEach((error) => {
+          error.style.display = "none";
+        });
+
+        // Validate card name
+        if (!cardName.value.trim()) {
+          document.getElementById("nameError").style.display = "block";
+          isValid = false;
+        }
+
+        // Validate card number (simple length check)
+        if (cardNumber.value.replace(/\s/g, "").length !== 16) {
+          document.getElementById("numberError").style.display = "block";
+          isValid = false;
+        }
+
+        // Validate expiry date format
+        const expiryPattern = /^(0[1-9]|1[0-2])\/([0-9]{2})$/;
+        if (!expiryPattern.test(expiryDate.value)) {
+          document.getElementById("expiryError").style.display = "block";
+          isValid = false;
+        }
+
+        // Validate CVV
+        if (cvv.value.length !== 3) {
+          document.getElementById("cvvError").style.display = "block";
+          isValid = false;
+        }
+
+        return isValid;
+      }
+
+      // Handle form submission
+      document.getElementById("payButton").addEventListener("click", (e) => {
+        e.preventDefault();
+        if (validateForm()) {
+          const payButton = document.getElementById("payButton");
+          payButton.disabled = true;
+          payButton.textContent = "Processing...";
+
+          setTimeout(() => {
+            window.location.href =
+              "../confirmation/index.html?" +
+              window.location.search.substring(1);
+          }, 2000);
+        }
+      });
+    </script>
+  </body>
+</html>

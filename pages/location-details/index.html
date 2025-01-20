@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car Hire - Location Details</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      body {
+        background-color: #f5f5f5;
+        min-height: 100vh;
+        width: 100%;
+        overflow-x: hidden;
+      }
+
+      .header {
+        background: #007bff;
+        color: white;
+        padding: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .back-button {
+        background: none;
+        border: none;
+        color: white;
+        padding: 8px;
+        margin-right: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+      }
+
+      .header h2 {
+        font-size: 20px;
+        margin: 0;
+        color: white;
+        flex: 1;
+      }
+
+      .location-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .location-details {
+        margin-bottom: 24px;
+      }
+
+      .location-country {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 4px;
+      }
+
+      .location-city {
+        font-size: 16px;
+        color: #666;
+      }
+
+      .section-title {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 12px;
+      }
+
+      .date-selector {
+        margin-bottom: 24px;
+      }
+
+      .date-input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        margin-bottom: 16px;
+        outline: none;
+      }
+
+      .date-input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+
+      .time-selector {
+        margin-bottom: 24px;
+      }
+
+      .time-range {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        color: #666;
+        font-size: 14px;
+      }
+
+      .time-slider {
+        width: 100%;
+        margin: 10px 0;
+      }
+
+      .time-display {
+        display: flex;
+        justify-content: space-between;
+        font-size: 16px;
+        color: #333;
+        margin-top: 8px;
+      }
+
+      .continue-button {
+        width: 100%;
+        padding: 16px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 24px;
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+      }
+
+      .continue-button:active {
+        transform: scale(0.98);
+      }
+
+      input[type="range"] {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 4px;
+        background: #ddd;
+        border-radius: 2px;
+        outline: none;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        background: #007bff;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <button class="back-button" onclick="history.back()">
+        <span class="material-icons">arrow_back</span>
+      </button>
+      <h2>Location Details</h2>
+    </header>
+
+    <img src="" alt="" class="location-image" id="locationImage" />
+
+    <div class="content">
+      <div class="location-details">
+        <div class="location-country" id="locationCountry"></div>
+        <div class="location-city" id="locationCity"></div>
+      </div>
+
+      <div class="date-selector">
+        <div class="section-title">Select Date</div>
+        <input type="date" class="date-input" id="dateSelect" min="" />
+      </div>
+
+      <div class="time-selector">
+        <div class="section-title">Select Time Range</div>
+        <div class="time-range">
+          <span>6:00 AM</span>
+          <span>10:00 PM</span>
+        </div>
+        <input
+          type="range"
+          min="6"
+          max="22"
+          value="9"
+          class="time-slider"
+          id="startTime"
+        />
+        <input
+          type="range"
+          min="6"
+          max="22"
+          value="17"
+          class="time-slider"
+          id="endTime"
+        />
+        <div class="time-display">
+          <span id="startTimeDisplay">9:00 AM</span>
+          <span id="endTimeDisplay">5:00 PM</span>
+        </div>
+      </div>
+
+      <button class="continue-button" onclick="goToPickupLocations()">
+        Continue
+      </button>
+    </div>
+
+    <script>
+      // Set minimum date to today
+      const today = new Date().toISOString().split("T")[0];
+      document.getElementById("dateSelect").min = today;
+      document.getElementById("dateSelect").value = today;
+
+      // Get URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const country = urlParams.get("country");
+      const city = urlParams.get("city");
+      const imageUrl = urlParams.get("image");
+
+      // Set location details
+      document.getElementById("locationCountry").textContent =
+        country || "Country";
+      document.getElementById("locationCity").textContent = city || "City";
+      document.getElementById("locationImage").src = imageUrl || "";
+      document.getElementById("locationImage").alt = `${city}, ${country}`;
+
+      // Time slider functionality
+      function formatTime(hour) {
+        const period = hour >= 12 ? "PM" : "AM";
+        const displayHour = hour > 12 ? hour - 12 : hour;
+        return `${displayHour}:00 ${period}`;
+      }
+
+      const startSlider = document.getElementById("startTime");
+      const endSlider = document.getElementById("endTime");
+      const startDisplay = document.getElementById("startTimeDisplay");
+      const endDisplay = document.getElementById("endTimeDisplay");
+
+      startSlider.addEventListener("input", function () {
+        const startValue = parseInt(this.value);
+        const endValue = parseInt(endSlider.value);
+
+        if (startValue >= endValue) {
+          endSlider.value = startValue + 1;
+          endDisplay.textContent = formatTime(startValue + 1);
+        }
+        startDisplay.textContent = formatTime(startValue);
+      });
+
+      endSlider.addEventListener("input", function () {
+        const endValue = parseInt(this.value);
+        const startValue = parseInt(startSlider.value);
+
+        if (endValue <= startValue) {
+          startSlider.value = endValue - 1;
+          startDisplay.textContent = formatTime(endValue - 1);
+        }
+        endDisplay.textContent = formatTime(endValue);
+      });
+
+      // Confirm booking
+      document
+        .querySelector(".confirm-button")
+        .addEventListener("click", function () {
+          const date = document.getElementById("dateSelect").value;
+          const startTime = startDisplay.textContent;
+          const endTime = endDisplay.textContent;
+
+          alert(
+            `Booking confirmed!\n\nLocation: ${city}, ${country}\nDate: ${date}\nTime: ${startTime} - ${endTime}`
+          );
+        });
+
+      function goToPickupLocations() {
+        const date = document.getElementById("dateSelect").value;
+        const startTime =
+          document.getElementById("startTimeDisplay").textContent;
+        const endTime = document.getElementById("endTimeDisplay").textContent;
+        const country = document.getElementById("locationCountry").textContent;
+        const city = document.getElementById("locationCity").textContent;
+
+        window.location.href = `../pickup-locations/index.html?country=${encodeURIComponent(
+          country
+        )}&city=${encodeURIComponent(city)}&date=${encodeURIComponent(
+          date
+        )}&startTime=${encodeURIComponent(
+          startTime
+        )}&endTime=${encodeURIComponent(endTime)}`;
+      }
+    </script>
+  </body>
+</html>

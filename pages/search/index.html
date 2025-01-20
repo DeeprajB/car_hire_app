@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car Hire - Search</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      body {
+        background-color: #f5f5f5;
+        padding-bottom: 70px;
+        min-height: 100vh;
+        width: 100%;
+        overflow-x: hidden;
+      }
+
+      .header {
+        background: #007bff;
+        color: white;
+        padding: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header h2 {
+        font-size: 20px;
+        margin: 0;
+        color: white;
+      }
+
+      .search-container {
+        padding: 16px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .search-box {
+        position: relative;
+        margin-bottom: 16px;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 12px 40px 12px 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        outline: none;
+        transition: border-color 0.3s;
+      }
+
+      .search-input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+
+      .search-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+      }
+
+      .results-container {
+        padding: 16px;
+      }
+
+      .results-count {
+        color: #666;
+        margin-bottom: 16px;
+        font-size: 14px;
+      }
+
+      .location-tile {
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+      }
+
+      .location-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+      }
+
+      .location-details {
+        padding: 16px;
+        flex: 1;
+      }
+
+      .location-country {
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 4px;
+        color: #333;
+      }
+
+      .location-city {
+        color: #666;
+        margin-bottom: 4px;
+        font-size: 14px;
+      }
+
+      .location-postcode {
+        color: #999;
+        font-size: 14px;
+      }
+
+      /* Bottom Navigation */
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        display: flex;
+        justify-content: space-around;
+        padding: 8px 0;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #666;
+        font-size: 11px;
+        padding: 4px;
+        flex: 1;
+        text-align: center;
+      }
+
+      .nav-item.active {
+        color: #007bff;
+      }
+
+      .material-icons {
+        font-size: 22px;
+        margin-bottom: 2px;
+      }
+
+      /* Mobile-only styles */
+      @media (min-width: 1024px) {
+        body:before {
+          content: "This application is only available on mobile devices";
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 20px;
+          padding: 20px;
+          z-index: 9999;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <h2>Car Hire App</h2>
+    </header>
+
+    <div class="search-container">
+      <div class="search-box">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search by location..."
+          id="searchInput"
+        />
+        <span class="material-icons search-icon">search</span>
+      </div>
+    </div>
+
+    <div class="results-container">
+      <div class="results-count">23 locations found</div>
+
+      <div class="results-list">
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1529655683826-aba9b3e77383"
+            alt="London"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">United Kingdom</div>
+            <div class="location-city">London</div>
+            <div class="location-postcode">SW1A 1AA</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34"
+            alt="Paris"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">France</div>
+            <div class="location-city">Paris</div>
+            <div class="location-postcode">75001</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1538332576228-eb5b4c4de6f5"
+            alt="Berlin"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Germany</div>
+            <div class="location-city">Berlin</div>
+            <div class="location-postcode">10115</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1544085311-11a028465b03"
+            alt="Tokyo"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Japan</div>
+            <div class="location-city">Tokyo</div>
+            <div class="location-postcode">100-0001</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9"
+            alt="Sydney"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Australia</div>
+            <div class="location-city">Sydney</div>
+            <div class="location-postcode">2000</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1518391846015-55a9cc003b25"
+            alt="New York"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">United States</div>
+            <div class="location-city">New York</div>
+            <div class="location-postcode">10001</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1534351590666-13e3e96b5017"
+            alt="Amsterdam"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Netherlands</div>
+            <div class="location-city">Amsterdam</div>
+            <div class="location-postcode">1012</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9"
+            alt="Venice"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Italy</div>
+            <div class="location-city">Venice</div>
+            <div class="location-postcode">30100</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad"
+            alt="Madrid"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Spain</div>
+            <div class="location-city">Madrid</div>
+            <div class="location-postcode">28001</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1528728329032-2972f65dfb3f"
+            alt="Stockholm"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Sweden</div>
+            <div class="location-city">Stockholm</div>
+            <div class="location-postcode">111 29</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c"
+            alt="Dubai"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">United Arab Emirates</div>
+            <div class="location-city">Dubai</div>
+            <div class="location-postcode">00000</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1597534458220-9fb4969f2df5"
+            alt="Singapore"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Singapore</div>
+            <div class="location-city">Singapore</div>
+            <div class="location-postcode">018956</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f"
+            alt="Seoul"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">South Korea</div>
+            <div class="location-city">Seoul</div>
+            <div class="location-postcode">04524</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1547448415-e9f5b28e570d"
+            alt="Toronto"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Canada</div>
+            <div class="location-city">Toronto</div>
+            <div class="location-postcode">M5H 2N2</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1582510003544-4d00b7f74220"
+            alt="Mumbai"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">India</div>
+            <div class="location-city">Mumbai</div>
+            <div class="location-postcode">400001</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1577587230708-187fdbef4d91"
+            alt="Cape Town"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">South Africa</div>
+            <div class="location-city">Cape Town</div>
+            <div class="location-postcode">8001</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1513805959324-96eb66ca8713"
+            alt="Oslo"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Norway</div>
+            <div class="location-city">Oslo</div>
+            <div class="location-postcode">0010</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1526129318478-62ed807ebdf9"
+            alt="Vienna"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Austria</div>
+            <div class="location-city">Vienna</div>
+            <div class="location-postcode">1010</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1661956602153-23384936a1d3"
+            alt="Zurich"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Switzerland</div>
+            <div class="location-city">Zurich</div>
+            <div class="location-postcode">8001</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1543783207-ec64e4d95325"
+            alt="Brussels"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Belgium</div>
+            <div class="location-city">Brussels</div>
+            <div class="location-postcode">1000</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1585208798174-6cedd86e019a"
+            alt="Lisbon"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Portugal</div>
+            <div class="location-city">Lisbon</div>
+            <div class="location-postcode">1100</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1513622470522-26c3c8a854bc"
+            alt="Copenhagen"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Denmark</div>
+            <div class="location-city">Copenhagen</div>
+            <div class="location-postcode">1050</div>
+          </div>
+        </div>
+
+        <div
+          class="location-tile"
+          onclick="window.location.href=`../location-details/index.html?country=${encodeURIComponent(this.querySelector('.location-country').textContent)}&city=${encodeURIComponent(this.querySelector('.location-city').textContent)}&image=${encodeURIComponent(this.querySelector('.location-image').src)}`"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1555993539-1732b0258235"
+            alt="Helsinki"
+            class="location-image"
+          />
+          <div class="location-details">
+            <div class="location-country">Finland</div>
+            <div class="location-city">Helsinki</div>
+            <div class="location-postcode">00100</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <a href="../home/index.html" class="nav-item">
+        <span class="material-icons">home</span>
+        Home
+      </a>
+      <a href="index.html" class="nav-item active">
+        <span class="material-icons">search</span>
+        Search
+      </a>
+      <a href="../rentals/index.html" class="nav-item">
+        <span class="material-icons">directions_car</span>
+        Rentals
+      </a>
+      <a href="../profile/index.html" class="nav-item">
+        <span class="material-icons">person</span>
+        Profile
+      </a>
+      <a href="../support/index.html" class="nav-item">
+        <span class="material-icons">help</span>
+        Support
+      </a>
+    </nav>
+
+    <script>
+      // Simple search functionality
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", function (e) {
+          const searchTerm = e.target.value.toLowerCase();
+          const locations = document.querySelectorAll(".location-tile");
+          let visibleCount = 0;
+
+          locations.forEach((location) => {
+            const country = location
+              .querySelector(".location-country")
+              .textContent.toLowerCase();
+            const city = location
+              .querySelector(".location-city")
+              .textContent.toLowerCase();
+            const postcode = location
+              .querySelector(".location-postcode")
+              .textContent.toLowerCase();
+
+            if (
+              country.includes(searchTerm) ||
+              city.includes(searchTerm) ||
+              postcode.includes(searchTerm)
+            ) {
+              location.style.display = "flex";
+              visibleCount++;
+            } else {
+              location.style.display = "none";
+            }
+          });
+
+          document.querySelector(
+            ".results-count"
+          ).textContent = `${visibleCount} location${
+            visibleCount !== 1 ? "s" : ""
+          } found`;
+        });
+    </script>
+  </body>
+</html>

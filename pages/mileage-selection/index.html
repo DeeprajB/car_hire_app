@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Select Mileage</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      body {
+        background-color: #f5f5f5;
+        padding-bottom: 70px;
+        min-height: 100vh;
+      }
+
+      .header {
+        background: #007bff;
+        color: white;
+        padding: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header h2 {
+        font-size: 20px;
+        margin: 0;
+      }
+
+      .booking-summary {
+        background: white;
+        margin: 16px;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .summary-title {
+        font-weight: bold;
+        margin-bottom: 12px;
+        color: #333;
+      }
+
+      .summary-detail {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        color: #666;
+      }
+
+      .summary-detail strong {
+        color: #333;
+      }
+
+      .mileage-section {
+        background: white;
+        margin: 16px;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .mileage-title {
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      .slider-container {
+        margin: 30px 0;
+      }
+
+      .slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 8px;
+        border-radius: 4px;
+        background: #ddd;
+        outline: none;
+        margin: 20px 0;
+      }
+
+      .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #007bff;
+        cursor: pointer;
+        transition: background 0.15s ease-in-out;
+      }
+
+      .slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border: 0;
+        border-radius: 50%;
+        background: #007bff;
+        cursor: pointer;
+        transition: background 0.15s ease-in-out;
+      }
+
+      .mileage-display {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+        margin: 20px 0;
+      }
+
+      .calculator-button {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: #f0f0f0;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+        cursor: pointer;
+        margin: 20px 0;
+        transition: background-color 0.2s;
+      }
+
+      .calculator-button:hover {
+        background: #e0e0e0;
+      }
+
+      .calculator-button .material-icons {
+        vertical-align: middle;
+        margin-right: 8px;
+      }
+
+      .continue-button {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #007bff;
+        color: white;
+        padding: 16px;
+        text-align: center;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border: none;
+        font-size: 16px;
+      }
+
+      .continue-button:hover {
+        background: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h2>Select Mileage</h2>
+    </div>
+
+    <div class="booking-summary">
+      <div class="summary-title">Booking Details</div>
+      <div class="summary-detail">
+        <span>Vehicle:</span>
+        <strong id="vehicleDisplay"></strong>
+      </div>
+      <div class="summary-detail">
+        <span>Duration:</span>
+        <strong id="durationDisplay"></strong>
+      </div>
+      <div class="summary-detail">
+        <span>Location:</span>
+        <strong id="locationDisplay"></strong>
+      </div>
+      <div class="summary-detail">
+        <span>Total Price:</span>
+        <strong id="priceDisplay"></strong>
+      </div>
+    </div>
+
+    <div class="mileage-section">
+      <div class="mileage-title">Select Expected Mileage</div>
+      <div class="slider-container">
+        <input
+          type="range"
+          min="100"
+          max="1000"
+          value="500"
+          class="slider"
+          id="mileageSlider"
+        />
+        <div class="mileage-display">
+          <span id="mileageValue">500</span> miles
+        </div>
+      </div>
+      <button class="calculator-button" id="calculatorButton">
+        <span class="material-icons">calculate</span>
+        Mileage Calculator
+      </button>
+    </div>
+
+    <button class="continue-button" id="continueButton">Continue</button>
+
+    <script>
+      // Get URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const vehicle = urlParams.get("vehicle");
+      const days = urlParams.get("days");
+      const pickup = urlParams.get("pickup");
+      const city = urlParams.get("city");
+      const country = urlParams.get("country");
+      const totalPrice = urlParams.get("totalPrice");
+
+      // Update summary
+      document.getElementById("vehicleDisplay").textContent = vehicle;
+      document.getElementById("durationDisplay").textContent = `${days} day${
+        days > 1 ? "s" : ""
+      }`;
+      document.getElementById(
+        "locationDisplay"
+      ).textContent = `${pickup}, ${city}, ${country}`;
+      document.getElementById("priceDisplay").textContent = `$${totalPrice}`;
+
+      // Mileage slider
+      const slider = document.getElementById("mileageSlider");
+      const mileageValue = document.getElementById("mileageValue");
+
+      // Check for calculated mileage from the calculator
+      const calculatedMileage = urlParams.get("calculatedMileage");
+      if (calculatedMileage) {
+        // Update the slider and display with the calculated mileage
+        slider.value = calculatedMileage;
+        mileageValue.textContent = calculatedMileage;
+
+        // Optional: Add visual feedback that the mileage was updated
+        mileageValue.style.color = "#28a745"; // Green color
+        setTimeout(() => {
+          mileageValue.style.color = "#007bff"; // Return to original color
+        }, 1500);
+      }
+
+      slider.oninput = function () {
+        mileageValue.textContent = this.value;
+      };
+
+      // Calculator button
+      document
+        .getElementById("calculatorButton")
+        .addEventListener("click", () => {
+          // Update or add currentMileage parameter
+          const params = new URLSearchParams(window.location.search);
+          params.set("currentMileage", slider.value);
+          const calculatorUrl = `../mileage-calculator/index.html?${params.toString()}`;
+          window.location.href = calculatorUrl;
+        });
+
+      // Continue button
+      document
+        .getElementById("continueButton")
+        .addEventListener("click", () => {
+          const nextPageUrl = `../checkout/index.html?${window.location.search.substring(
+            1
+          )}&mileage=${slider.value}`;
+          window.location.href = nextPageUrl;
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Select Vehicle</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      body {
+        background-color: #f5f5f5;
+        padding-bottom: 70px;
+        min-height: 100vh;
+      }
+
+      .header {
+        background: #007bff;
+        color: white;
+        padding: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header h2 {
+        font-size: 20px;
+        margin: 0;
+      }
+
+      .booking-summary {
+        background: white;
+        margin: 16px;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .summary-title {
+        font-weight: bold;
+        margin-bottom: 12px;
+        color: #333;
+      }
+
+      .summary-detail {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        color: #666;
+      }
+
+      .summary-detail strong {
+        color: #333;
+      }
+
+      .vehicles-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .vehicle-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: transform 0.2s;
+        position: relative;
+      }
+
+      .vehicle-card.selected {
+        border: 2px solid #007bff;
+        transform: scale(1.02);
+      }
+
+      .vehicle-card:hover {
+        transform: scale(1.02);
+      }
+
+      .vehicle-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+
+      .vehicle-details {
+        padding: 16px;
+      }
+
+      .vehicle-name {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      .vehicle-specs {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 12px;
+        color: #666;
+      }
+
+      .vehicle-price {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .daily-rate {
+        font-size: 16px;
+        color: #666;
+      }
+
+      .total-price {
+        font-size: 20px;
+        font-weight: bold;
+        color: #007bff;
+      }
+
+      .rental-period {
+        font-size: 14px;
+        color: #666;
+      }
+
+      .continue-button {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #007bff;
+        color: white;
+        padding: 16px;
+        text-align: center;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        z-index: 100;
+      }
+
+      .continue-button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      @media (min-width: 768px) {
+        .vehicles-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .vehicles-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .card-icons {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 8px;
+        z-index: 1;
+      }
+
+      .info-icon,
+      .favorite-icon {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 4px;
+        border-radius: 50%;
+        cursor: pointer;
+        color: #666;
+        transition: all 0.2s;
+      }
+
+      .info-icon:hover,
+      .favorite-icon:hover {
+        transform: scale(1.1);
+        background: white;
+      }
+
+      .material-icons {
+        font-size: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h2>Select Vehicle</h2>
+    </div>
+
+    <div class="booking-summary">
+      <div class="summary-title">Booking Details</div>
+      <div class="summary-detail">
+        <span>Location:</span>
+        <strong id="locationDisplay"></strong>
+      </div>
+      <div class="summary-detail">
+        <span>Address:</span>
+        <strong id="addressDisplay"></strong>
+      </div>
+      <div class="summary-detail">
+        <span>Date:</span>
+        <strong id="dateDisplay"></strong>
+      </div>
+      <div class="summary-detail">
+        <span>Time:</span>
+        <strong id="timeDisplay"></strong>
+      </div>
+      <div class="summary-detail">
+        <span>Hours:</span>
+        <strong id="hoursDisplay"></strong>
+      </div>
+    </div>
+
+    <div class="vehicles-grid" id="vehiclesGrid">
+      <!-- Vehicle cards will be added here dynamically -->
+    </div>
+
+    <div class="continue-button" id="continueButton" disabled>Continue</div>
+
+    <script>
+      // Get URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const country = urlParams.get("country");
+      const city = urlParams.get("city");
+      const date = urlParams.get("date");
+      const startTime = urlParams.get("startTime");
+      const endTime = urlParams.get("endTime");
+      const pickup = urlParams.get("pickup");
+      const address = urlParams.get("address");
+      const hours = urlParams.get("hours");
+
+      // Update summary
+      document.getElementById(
+        "locationDisplay"
+      ).textContent = `${pickup}, ${city}, ${country}`;
+      document.getElementById("addressDisplay").textContent = address;
+      document.getElementById("dateDisplay").textContent = date;
+      document.getElementById(
+        "timeDisplay"
+      ).textContent = `${startTime} - ${endTime}`;
+      document.getElementById("hoursDisplay").textContent = hours;
+
+      // Add this helper function to calculate days between dates
+      function calculateDays(startDate, startTime, endDate, endTime) {
+        const start = new Date(`${startDate} ${startTime}`);
+        const end = new Date(`${endDate} ${endTime}`);
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays || 1; // Return at least 1 day
+      }
+
+      // Update the vehicles data to include daily rate without currency symbol
+      const vehicles = [
+        {
+          id: 1,
+          name: "Toyota Camry",
+          image: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb",
+          specs: {
+            seats: "5 Seats",
+            transmission: "Automatic",
+            luggage: "4 Bags",
+            mileage: "Unlimited",
+          },
+          dailyRate: 50,
+        },
+        {
+          id: 2,
+          name: "BMW 3 Series",
+          image: "https://images.unsplash.com/photo-1523983388277-336a66bf9bcd",
+          specs: {
+            seats: "5 Seats",
+            transmission: "Automatic",
+            luggage: "3 Bags",
+            mileage: "Unlimited",
+          },
+          dailyRate: 75,
+        },
+        {
+          id: 3,
+          name: "Mercedes-Benz C-Class",
+          image: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8",
+          specs: {
+            seats: "5 Seats",
+            transmission: "Automatic",
+            luggage: "3 Bags",
+            mileage: "Unlimited",
+          },
+          dailyRate: 80,
+        },
+      ];
+
+      // Calculate rental duration and total price
+      const rentalDays = calculateDays(date, startTime, date, endTime);
+
+      let selectedVehicle = null;
+      const continueButton = document.getElementById("continueButton");
+      const vehiclesGrid = document.getElementById("vehiclesGrid");
+
+      // Create vehicle cards
+      vehicles.forEach((vehicle) => {
+        const totalPrice = vehicle.dailyRate * rentalDays;
+        const card = document.createElement("div");
+        card.className = "vehicle-card";
+        card.innerHTML = `
+          <div class="card-icons">
+            <span class="material-icons info-icon" title="More Information">info</span>
+            <span class="material-icons favorite-icon" title="Add to Favorites">favorite_border</span>
+          </div>
+          <img src="${vehicle.image}" alt="${
+          vehicle.name
+        }" class="vehicle-image">
+          <div class="vehicle-details">
+            <div class="vehicle-name">${vehicle.name}</div>
+            <div class="vehicle-specs">
+              <div>${vehicle.specs.seats}</div>
+              <div>${vehicle.specs.transmission}</div>
+              <div>${vehicle.specs.luggage}</div>
+              <div>${vehicle.specs.mileage}</div>
+            </div>
+            <div class="vehicle-price">
+              <div class="daily-rate">$${vehicle.dailyRate}/day</div>
+              <div class="total-price">Total: $${totalPrice}</div>
+              <div class="rental-period">${rentalDays} day${
+          rentalDays > 1 ? "s" : ""
+        }</div>
+            </div>
+          </div>
+        `;
+
+        // Add these event listeners after creating the card
+        const infoIcon = card.querySelector(".info-icon");
+        const favoriteIcon = card.querySelector(".favorite-icon");
+        let isFavorite = false;
+
+        infoIcon.addEventListener("click", (e) => {
+          e.stopPropagation(); // Prevent card selection when clicking info
+          const detailsPageUrl =
+            `../car-details/index.html?` +
+            `image=${encodeURIComponent(vehicle.image)}` +
+            `&name=${encodeURIComponent(vehicle.name)}` +
+            `&price=${encodeURIComponent(`$ ${totalPrice}`)}` +
+            `&seats=${encodeURIComponent(vehicle.specs.seats)}` +
+            `&transmission=${encodeURIComponent(vehicle.specs.transmission)}` +
+            `&fuelType=${encodeURIComponent(vehicle.specs.fuelType)}` +
+            `&luggage=${encodeURIComponent(vehicle.specs.luggage)}` +
+            `&description=${encodeURIComponent(vehicle.description || "")}`;
+
+          window.location.href = detailsPageUrl;
+        });
+
+        favoriteIcon.addEventListener("click", (e) => {
+          e.stopPropagation(); // Prevent card selection when clicking favorite
+          isFavorite = !isFavorite;
+          favoriteIcon.textContent = isFavorite
+            ? "favorite"
+            : "favorite_border";
+          favoriteIcon.style.color = isFavorite ? "#ff4444" : "#666";
+        });
+
+        // Rest of the card click handler...
+        card.addEventListener("click", () => {
+          document
+            .querySelectorAll(".vehicle-card")
+            .forEach((c) => c.classList.remove("selected"));
+          card.classList.add("selected");
+          selectedVehicle = {
+            ...vehicle,
+            totalPrice: totalPrice,
+            rentalDays: rentalDays,
+          };
+          continueButton.disabled = false;
+          updateContinueButton();
+        });
+
+        vehiclesGrid.appendChild(card);
+      });
+
+      // Add this function to update the continue button
+      function updateContinueButton() {
+        if (selectedVehicle) {
+          continueButton.textContent = `Continue - Total: $${selectedVehicle.totalPrice}`;
+          continueButton.disabled = false;
+        } else {
+          continueButton.textContent = "Please select a vehicle to continue";
+          continueButton.disabled = true;
+        }
+      }
+
+      // Initial continue button state
+      updateContinueButton();
+
+      // Update the continue button click handler
+      continueButton.addEventListener("click", () => {
+        if (selectedVehicle) {
+          const nextPageUrl =
+            `../mileage-selection/index.html?` +
+            `country=${encodeURIComponent(country)}` +
+            `&city=${encodeURIComponent(city)}` +
+            `&date=${encodeURIComponent(date)}` +
+            `&startTime=${encodeURIComponent(startTime)}` +
+            `&endTime=${encodeURIComponent(endTime)}` +
+            `&pickup=${encodeURIComponent(pickup)}` +
+            `&address=${encodeURIComponent(address)}` +
+            `&hours=${encodeURIComponent(hours)}` +
+            `&vehicle=${encodeURIComponent(selectedVehicle.name)}` +
+            `&dailyRate=${encodeURIComponent(selectedVehicle.dailyRate)}` +
+            `&days=${encodeURIComponent(selectedVehicle.rentalDays)}` +
+            `&totalPrice=${encodeURIComponent(selectedVehicle.totalPrice)}`;
+
+          window.location.href = nextPageUrl;
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Support</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      body {
+        background-color: #f5f5f5;
+        padding-bottom: 70px;
+        min-height: 100vh;
+      }
+
+      .header {
+        background: #007bff;
+        color: white;
+        padding: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header h2 {
+        text-align: center;
+        font-size: 20px;
+      }
+
+      .search-container {
+        background: white;
+        padding: 16px;
+        position: sticky;
+        top: 56px;
+        z-index: 90;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .search-box {
+        display: flex;
+        align-items: center;
+        background: #f5f5f5;
+        padding: 8px 16px;
+        border-radius: 24px;
+        gap: 8px;
+      }
+
+      .search-box input {
+        border: none;
+        background: none;
+        font-size: 16px;
+        flex: 1;
+        outline: none;
+      }
+
+      .section-title {
+        padding: 16px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .faq-list {
+        background: white;
+        margin: 0 16px 16px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .faq-item {
+        border-bottom: 1px solid #eee;
+      }
+
+      .faq-item:last-child {
+        border-bottom: none;
+      }
+
+      .faq-question {
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 500;
+      }
+
+      .faq-answer {
+        padding: 0 16px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+        color: #666;
+      }
+
+      .faq-answer.active {
+        padding: 0 16px 16px;
+        max-height: 500px;
+      }
+
+      .live-chat-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: #28a745;
+        color: white;
+        padding: 16px;
+        margin: 16px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .contact-section {
+        background: white;
+        margin: 16px;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0;
+        color: #333;
+        text-decoration: none;
+      }
+
+      .contact-item:not(:last-child) {
+        border-bottom: 1px solid #eee;
+      }
+
+      .contact-item .material-icons {
+        color: #007bff;
+      }
+
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        display: flex;
+        justify-content: space-around;
+        padding: 8px 0;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #666;
+        font-size: 11px;
+        padding: 4px;
+        flex: 1;
+        text-align: center;
+      }
+
+      .nav-item.active {
+        color: #007bff;
+      }
+
+      .nav-item .material-icons {
+        font-size: 22px;
+        margin-bottom: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h2>Support</h2>
+    </div>
+
+    <div class="search-container">
+      <div class="search-box">
+        <span class="material-icons">search</span>
+        <input type="text" placeholder="Search FAQs" id="searchInput" />
+      </div>
+    </div>
+
+    <div class="section-title">Frequently Asked Questions</div>
+    <div class="faq-list" id="faqList">
+      <!-- FAQs will be dynamically added here -->
+    </div>
+
+    <a href="#" class="live-chat-button">
+      <span class="material-icons">chat</span>
+      Start Live Chat
+    </a>
+
+    <div class="section-title">Contact Us</div>
+    <div class="contact-section">
+      <a href="https://www.carhire.com" class="contact-item" target="_blank">
+        <span class="material-icons">language</span>
+        www.carhire.com
+      </a>
+      <a href="tel:+1234567890" class="contact-item">
+        <span class="material-icons">phone</span>
+        +1 (234) 567-890
+      </a>
+      <a href="mailto:support@carhire.com" class="contact-item">
+        <span class="material-icons">email</span>
+        support@carhire.com
+      </a>
+    </div>
+
+    <nav class="bottom-nav">
+      <a href="../home/index.html" class="nav-item">
+        <span class="material-icons">home</span>
+        Home
+      </a>
+      <a href="../search/index.html" class="nav-item">
+        <span class="material-icons">search</span>
+        Search
+      </a>
+      <a href="../rentals/index.html" class="nav-item">
+        <span class="material-icons">directions_car</span>
+        Rentals
+      </a>
+      <a href="../profile/index.html" class="nav-item">
+        <span class="material-icons">person</span>
+        Profile
+      </a>
+      <a href="../support/index.html" class="nav-item active">
+        <span class="material-icons">help</span>
+        Support
+      </a>
+    </nav>
+
+    <script>
+      const faqs = [
+        {
+          question: "How do I make a reservation?",
+          answer:
+            "You can make a reservation through our mobile app or website. Simply select your pickup location, dates, and preferred vehicle to get started.",
+        },
+        {
+          question: "What documents do I need to rent a car?",
+          answer:
+            "You'll need a valid driver's license, credit card, and proof of insurance. International renters may need additional documentation.",
+        },
+        {
+          question: "Can I modify or cancel my reservation?",
+          answer:
+            "Yes, you can modify or cancel your reservation through the app or website. Cancellation fees may apply depending on the timing.",
+        },
+        {
+          question: "What is the fuel policy?",
+          answer:
+            "Our vehicles are provided with a full tank of fuel and should be returned with a full tank. Additional charges apply if the tank is not full upon return.",
+        },
+        {
+          question: "Is insurance included?",
+          answer:
+            "Basic insurance is included in the rental price. Additional coverage options are available for purchase.",
+        },
+        {
+          question: "What happens if I return the car late?",
+          answer:
+            "Late returns may incur additional charges. Please contact us if you need to extend your rental period.",
+        },
+      ];
+
+      const faqList = document.getElementById("faqList");
+      const searchInput = document.getElementById("searchInput");
+
+      function createFAQList(faqs) {
+        faqList.innerHTML = "";
+        faqs.forEach((faq) => {
+          const item = document.createElement("div");
+          item.className = "faq-item";
+          item.innerHTML = `
+                    <div class="faq-question">
+                        ${faq.question}
+                        <span class="material-icons">expand_more</span>
+                    </div>
+                    <div class="faq-answer">
+                        ${faq.answer}
+                    </div>
+                `;
+
+          const question = item.querySelector(".faq-question");
+          const answer = item.querySelector(".faq-answer");
+          const icon = question.querySelector(".material-icons");
+
+          question.addEventListener("click", () => {
+            answer.classList.toggle("active");
+            icon.textContent = answer.classList.contains("active")
+              ? "expand_less"
+              : "expand_more";
+          });
+
+          faqList.appendChild(item);
+        });
+      }
+
+      searchInput.addEventListener("input", (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const filteredFAQs = faqs.filter(
+          (faq) =>
+            faq.question.toLowerCase().includes(searchTerm) ||
+            faq.answer.toLowerCase().includes(searchTerm)
+        );
+        createFAQList(filteredFAQs);
+      });
+
+      // Initial render
+      createFAQList(faqs);
+    </script>
+  </body>
+</html>

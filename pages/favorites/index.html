@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Favorites</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      body {
+        background-color: #f5f5f5;
+        min-height: 100vh;
+      }
+
+      .header {
+        background: #007bff;
+        color: white;
+        padding: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .back-button {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 4px;
+      }
+
+      .header h2 {
+        flex: 1;
+      }
+
+      .favorite-card {
+        background: white;
+        margin: 16px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        position: relative;
+      }
+
+      .favorite-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+
+      .favorite-content {
+        padding: 16px;
+      }
+
+      .vehicle-name {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #333;
+      }
+
+      .vehicle-specs {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 12px;
+        color: #666;
+        font-size: 14px;
+      }
+
+      .vehicle-price {
+        color: #007bff;
+        font-weight: bold;
+        font-size: 18px;
+      }
+
+      .action-buttons {
+        display: flex;
+        margin-top: 12px;
+      }
+
+      .action-button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: background-color 0.2s;
+      }
+
+      .remove-button {
+        background: #f8f9fa;
+        color: #dc3545;
+      }
+
+      .remove-button:hover {
+        background: #e9ecef;
+      }
+
+      .no-favorites {
+        text-align: center;
+        padding: 32px;
+        color: #666;
+        margin-top: 32px;
+      }
+
+      .no-favorites .material-icons {
+        font-size: 48px;
+        color: #ccc;
+        margin-bottom: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <button class="back-button" onclick="window.history.back()">
+        <span class="material-icons">arrow_back</span>
+      </button>
+      <h2>Favorites</h2>
+    </div>
+
+    <div id="favoritesContainer">
+      <!-- Favorite cards will be dynamically loaded here -->
+    </div>
+
+    <script>
+      // Sample favorites data (in a real app, this would come from localStorage or a backend)
+      const favorites = [
+        {
+          id: 1,
+          name: "BMW 3 Series",
+          image: "https://images.unsplash.com/photo-1523983388277-336a66bf9bcd",
+          specs: {
+            seats: "5 Seats",
+            transmission: "Automatic",
+            luggage: "3 Bags",
+            mileage: "Unlimited",
+          },
+          price: "$75/day",
+        },
+        {
+          id: 2,
+          name: "Mercedes-Benz C-Class",
+          image: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8",
+          specs: {
+            seats: "5 Seats",
+            transmission: "Automatic",
+            luggage: "3 Bags",
+            mileage: "Unlimited",
+          },
+          price: "$80/day",
+        },
+      ];
+
+      const favoritesContainer = document.getElementById("favoritesContainer");
+
+      if (favorites.length === 0) {
+        favoritesContainer.innerHTML = `
+                <div class="no-favorites">
+                    <span class="material-icons">favorite_border</span>
+                    <p>No favorite vehicles yet</p>
+                </div>
+            `;
+      } else {
+        favorites.forEach((vehicle) => {
+          const card = document.createElement("div");
+          card.className = "favorite-card";
+          card.innerHTML = `
+            <img src="${vehicle.image}" alt="${vehicle.name}" class="favorite-image">
+            <div class="favorite-content">
+                <div class="vehicle-name">${vehicle.name}</div>
+                <div class="vehicle-specs">
+                    <span>${vehicle.specs.seats}</span>
+                    <span>${vehicle.specs.transmission}</span>
+                    <span>${vehicle.specs.luggage}</span>
+                    <span>${vehicle.specs.mileage}</span>
+                </div>
+                <div class="vehicle-price">${vehicle.price}</div>
+                <div class="action-buttons">
+                    <button class="action-button remove-button" onclick="removeFavorite(${vehicle.id})">
+                        <span class="material-icons">favorite</span>
+                        Remove from Favorites
+                    </button>
+                    <button class="info-button" onclick="window.location.href='../car-details/index.html?id=${vehicle.id}&name=${vehicle.name}&image=${vehicle.image}&price=${vehicle.price}'">
+                        <span class="material-icons">info</span>
+                    </button>
+                </div>
+            </div>
+        `;
+          favoritesContainer.appendChild(card);
+        });
+      }
+
+      function removeFavorite(id) {
+        // Remove the favorite and refresh the list
+        const card = document
+          .querySelector(`[onclick="removeFavorite(${id})"]`)
+          .closest(".favorite-card");
+        card.style.animation = "fadeOut 0.3s";
+        setTimeout(() => {
+          card.remove();
+          if (favoritesContainer.children.length === 0) {
+            favoritesContainer.innerHTML = `
+                        <div class="no-favorites">
+                            <span class="material-icons">favorite_border</span>
+                            <p>No favorite vehicles yet</p>
+                        </div>
+                    `;
+          }
+        }, 300);
+      }
+    </script>
+  </body>
+</html>

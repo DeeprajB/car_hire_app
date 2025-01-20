@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      body {
+        background-color: #f5f5f5;
+        padding-bottom: 70px;
+        min-height: 100vh;
+      }
+
+      .header {
+        background: #007bff;
+        color: white;
+        padding: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header h2 {
+        font-size: 20px;
+        margin: 0;
+      }
+
+      .booking-details {
+        background: white;
+        margin: 16px;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        color: #666;
+      }
+
+      .detail-item strong {
+        color: #333;
+      }
+
+      .price-breakdown {
+        background: white;
+        margin: 16px;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .price-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 16px;
+      }
+
+      .deposit-note {
+        font-size: 14px;
+        color: #666;
+        margin-top: 8px;
+        padding: 8px;
+        background: #f8f9fa;
+        border-radius: 6px;
+      }
+
+      .total-price {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 2px solid #f0f0f0;
+        font-size: 20px;
+        font-weight: bold;
+        color: #007bff;
+      }
+
+      .rent-button {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #28a745;
+        color: white;
+        padding: 16px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 18px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .rent-button:hover {
+        background: #218838;
+      }
+
+      .vehicle-card {
+        background: white;
+        margin: 16px;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .vehicle-image {
+        width: 120px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 6px;
+      }
+
+      .vehicle-info {
+        flex: 1;
+      }
+
+      .vehicle-name {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 4px;
+      }
+
+      .vehicle-specs {
+        color: #666;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h2>Checkout</h2>
+    </div>
+
+    <div class="vehicle-card">
+      <img id="vehicleImage" src="" alt="Vehicle" class="vehicle-image" />
+      <div class="vehicle-info">
+        <div id="vehicleName" class="vehicle-name"></div>
+        <div id="vehicleSpecs" class="vehicle-specs"></div>
+      </div>
+    </div>
+
+    <div class="booking-details">
+      <div class="section-title">Booking Details</div>
+      <div class="detail-item">
+        <span>Pickup Location:</span>
+        <strong id="locationDisplay"></strong>
+      </div>
+      <div class="detail-item">
+        <span>Date:</span>
+        <strong id="dateDisplay"></strong>
+      </div>
+      <div class="detail-item">
+        <span>Time:</span>
+        <strong id="timeDisplay"></strong>
+      </div>
+      <div class="detail-item">
+        <span>Duration:</span>
+        <strong id="durationDisplay"></strong>
+      </div>
+      <div class="detail-item">
+        <span>Mileage Allowance:</span>
+        <strong id="mileageDisplay"></strong>
+      </div>
+    </div>
+
+    <div class="price-breakdown">
+      <div class="section-title">Price Breakdown</div>
+      <div class="price-item">
+        <span>Daily Rate:</span>
+        <span id="dailyRateDisplay"></span>
+      </div>
+      <div class="price-item">
+        <span>Rental Duration:</span>
+        <span id="durationPriceDisplay"></span>
+      </div>
+      <div class="price-item">
+        <span>Security Deposit:</span>
+        <span id="depositDisplay"></span>
+      </div>
+      <div class="deposit-note">
+        * Security deposit will be refunded after the vehicle is returned in
+        good condition
+      </div>
+      <div class="total-price">
+        <div class="price-item">
+          <span>Total (including deposit):</span>
+          <span id="totalDisplay"></span>
+        </div>
+      </div>
+    </div>
+
+    <button class="rent-button" id="rentButton">Rent Now</button>
+
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+
+      // Get all parameters
+      const vehicle = urlParams.get("vehicle");
+      const dailyRate = parseFloat(urlParams.get("dailyRate"));
+      const days = parseInt(urlParams.get("days"));
+      const pickup = urlParams.get("pickup");
+      const city = urlParams.get("city");
+      const country = urlParams.get("country");
+      const date = urlParams.get("date");
+      const startTime = urlParams.get("startTime");
+      const endTime = urlParams.get("endTime");
+      const mileage = urlParams.get("mileage");
+
+      // Calculate prices
+      const rentalPrice = dailyRate * days;
+      const deposit = Math.round(rentalPrice * 0.3); // 30% deposit
+      const totalPrice = rentalPrice + deposit;
+
+      // Update vehicle information
+      document.getElementById("vehicleName").textContent = vehicle;
+      document.getElementById(
+        "vehicleSpecs"
+      ).textContent = `${days} days rental • ${mileage} miles`;
+      // Set a default image based on the vehicle name
+      document.getElementById(
+        "vehicleImage"
+      ).src = `https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb`;
+
+      // Update booking details
+      document.getElementById(
+        "locationDisplay"
+      ).textContent = `${pickup}, ${city}, ${country}`;
+      document.getElementById("dateDisplay").textContent = date;
+      document.getElementById(
+        "timeDisplay"
+      ).textContent = `${startTime} - ${endTime}`;
+      document.getElementById("durationDisplay").textContent = `${days} day${
+        days > 1 ? "s" : ""
+      }`;
+      document.getElementById(
+        "mileageDisplay"
+      ).textContent = `${mileage} miles`;
+
+      // Update price breakdown
+      document.getElementById(
+        "dailyRateDisplay"
+      ).textContent = `$${dailyRate}/day`;
+      document.getElementById(
+        "durationPriceDisplay"
+      ).textContent = `$${rentalPrice} (${days} days)`;
+      document.getElementById("depositDisplay").textContent = `$${deposit}`;
+      document.getElementById("totalDisplay").textContent = `$${totalPrice}`;
+
+      // Handle rent button click
+      document.getElementById("rentButton").addEventListener("click", () => {
+        const params = new URLSearchParams(window.location.search);
+        params.set("totalPrice", totalPrice);
+        const nextPageUrl = `../payment/index.html?${params.toString()}`;
+        window.location.href = nextPageUrl;
+      });
+    </script>
+  </body>
+</html>

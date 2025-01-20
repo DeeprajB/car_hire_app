@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car Hire - Home</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      body {
+        background-color: #f5f5f5;
+        padding-bottom: 70px; /* Space for bottom nav */
+        min-height: 100vh;
+        width: 100%;
+        overflow-x: hidden; /* Prevent horizontal scroll */
+        padding-top: 0; /* Remove any top padding if exists */
+      }
+
+      .container {
+        padding: 16px;
+        max-width: 100%;
+        margin: 0 auto;
+      }
+
+      h1 {
+        color: #333;
+        font-size: 22px;
+        margin-bottom: 20px;
+        padding: 0 4px;
+      }
+
+      /* Car Cards */
+      .car-grid {
+        display: grid;
+        grid-gap: 16px;
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+
+      .car-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 100%;
+      }
+
+      .car-image-container {
+        position: relative;
+        width: 100%;
+        height: 200px;
+      }
+
+      .info-button {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        color: #007bff;
+        z-index: 1;
+      }
+
+      .info-button:hover {
+        background: white;
+      }
+
+      .car-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 12px 12px 0 0;
+      }
+
+      .car-details {
+        padding: 12px;
+      }
+
+      .car-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 4px;
+      }
+
+      .car-price {
+        color: #007bff;
+        font-weight: 600;
+        font-size: 15px;
+      }
+
+      /* Bottom Navigation */
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        display: flex;
+        justify-content: space-around;
+        padding: 8px 0;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #666;
+        font-size: 11px;
+        padding: 4px;
+        flex: 1;
+        text-align: center;
+      }
+
+      .nav-item.active {
+        color: #007bff;
+      }
+
+      .material-icons {
+        font-size: 22px;
+        margin-bottom: 2px;
+      }
+
+      /* Responsive Grid */
+      @media (min-width: 480px) {
+        .car-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 768px) {
+        .car-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      /* Mobile-only styles */
+      @media (min-width: 1024px) {
+        body:before {
+          content: "This application is only available on mobile devices";
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 20px;
+          padding: 20px;
+          z-index: 9999;
+          text-align: center;
+        }
+      }
+
+      /* Handle very small screens */
+      @media (max-width: 320px) {
+        .container {
+          padding: 12px;
+        }
+
+        h1 {
+          font-size: 20px;
+          margin-bottom: 16px;
+        }
+
+        .car-details {
+          padding: 10px;
+        }
+
+        .car-name {
+          font-size: 14px;
+        }
+
+        .car-price {
+          font-size: 13px;
+        }
+
+        .nav-item {
+          font-size: 10px;
+        }
+
+        .material-icons {
+          font-size: 20px;
+        }
+      }
+
+      /* Add these styles with your existing styles */
+      .header {
+        background: #007bff;
+        color: white;
+        padding: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header h2 {
+        font-size: 20px;
+        margin: 0;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <h2>Car Hire App</h2>
+    </header>
+
+    <div class="container">
+      <h1>Available vehicles globally</h1>
+
+      <div class="car-grid">
+        <div class="car-card">
+          <div class="car-image-container">
+            <img
+              src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8"
+              alt="Tesla Model S"
+              class="car-image"
+            />
+          </div>
+          <div class="car-details">
+            <div class="car-name">Tesla Model S</div>
+            <div class="car-price">$200/day</div>
+          </div>
+        </div>
+
+        <div class="car-card">
+          <div class="car-image-container">
+            <img
+              src="https://images.unsplash.com/photo-1503376780353-7e6692767b70"
+              alt="BMW 3 Series"
+              class="car-image"
+            />
+          </div>
+          <div class="car-details">
+            <div class="car-name">BMW 3 Series</div>
+            <div class="car-price">$150/day</div>
+          </div>
+        </div>
+
+        <div class="car-card">
+          <div class="car-image-container">
+            <img
+              src="https://images.unsplash.com/photo-1555215695-3004980ad54e"
+              alt="Mercedes C-Class"
+              class="car-image"
+            />
+          </div>
+          <div class="car-details">
+            <div class="car-name">Mercedes C-Class</div>
+            <div class="car-price">$180/day</div>
+          </div>
+        </div>
+
+        <div class="car-card">
+          <div class="car-image-container">
+            <img
+              src="https://images.unsplash.com/photo-1580273916550-e323be2ae537"
+              alt="Toyota Camry"
+              class="car-image"
+            />
+          </div>
+          <div class="car-details">
+            <div class="car-name">Toyota Camry</div>
+            <div class="car-price">$120/day</div>
+          </div>
+        </div>
+
+        <div class="car-card">
+          <div class="car-image-container">
+            <img
+              src="https://images.unsplash.com/photo-1619682817481-e994891cd1f5"
+              alt="Audi A4"
+              class="car-image"
+            />
+          </div>
+          <div class="car-details">
+            <div class="car-name">Audi A4</div>
+            <div class="car-price">$170/day</div>
+          </div>
+        </div>
+
+        <div class="car-card">
+          <div class="car-image-container">
+            <img
+              src="https://images.unsplash.com/photo-1617654112368-307921291f42"
+              alt="Honda Civic"
+              class="car-image"
+            />
+          </div>
+          <div class="car-details">
+            <div class="car-name">Honda Civic</div>
+            <div class="car-price">$110/day</div>
+          </div>
+        </div>
+
+        <div class="car-card">
+          <div class="car-image-container">
+            <img
+              src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d"
+              alt="Porsche 911"
+              class="car-image"
+            />
+          </div>
+          <div class="car-details">
+            <div class="car-name">Porsche 911</div>
+            <div class="car-price">$350/day</div>
+          </div>
+        </div>
+
+        <div class="car-card">
+          <div class="car-image-container">
+            <img
+              src="https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a"
+              alt="Lexus ES"
+              class="car-image"
+            />
+          </div>
+          <div class="car-details">
+            <div class="car-name">Lexus ES</div>
+            <div class="car-price">$190/day</div>
+          </div>
+        </div>
+
+        <div class="car-card">
+          <div class="car-image-container">
+            <img
+              src="https://images.unsplash.com/photo-1612825173281-9a193378527e"
+              alt="Volkswagen Golf"
+              class="car-image"
+            />
+          </div>
+          <div class="car-details">
+            <div class="car-name">Volkswagen Golf</div>
+            <div class="car-price">$130/day</div>
+          </div>
+        </div>
+
+        <div class="car-card">
+          <div class="car-image-container">
+            <img
+              src="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8"
+              alt="Range Rover"
+              class="car-image"
+            />
+          </div>
+          <div class="car-details">
+            <div class="car-name">Range Rover</div>
+            <div class="car-price">$280/day</div>
+          </div>
+        </div>
+
+        <div class="car-card">
+          <div class="car-image-container">
+            <img
+              src="https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2"
+              alt="Mercedes GLC"
+              class="car-image"
+            />
+          </div>
+          <div class="car-details">
+            <div class="car-name">Mercedes GLC</div>
+            <div class="car-price">$240/day</div>
+          </div>
+        </div>
+
+        <div class="car-card">
+          <div class="car-image-container">
+            <img
+              src="https://images.unsplash.com/photo-1609521263047-f8f205293f24"
+              alt="BMW X5"
+              class="car-image"
+            />
+          </div>
+          <div class="car-details">
+            <div class="car-name">BMW X5</div>
+            <div class="car-price">$260/day</div>
+          </div>
+        </div>
+
+        <div class="car-card">
+          <div class="car-image-container">
+            <img
+              src="https://images.unsplash.com/photo-1619682817481-e994891cd1f5"
+              alt="Audi Q7"
+              class="car-image"
+            />
+          </div>
+          <div class="car-details">
+            <div class="car-name">Audi Q7</div>
+            <div class="car-price">$290/day</div>
+          </div>
+        </div>
+
+        <div class="car-card">
+          <div class="car-image-container">
+            <img
+              src="https://images.unsplash.com/photo-1620891549027-942fdc95d3f5"
+              alt="Tesla Model 3"
+              class="car-image"
+            />
+          </div>
+          <div class="car-details">
+            <div class="car-name">Tesla Model 3</div>
+            <div class="car-price">$220/day</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <a href="index.html" class="nav-item active">
+        <span class="material-icons">home</span>
+        Home
+      </a>
+      <a href="../search/index.html" class="nav-item">
+        <span class="material-icons">search</span>
+        Search
+      </a>
+      <a href="../rentals/index.html" class="nav-item">
+        <span class="material-icons">directions_car</span>
+        Rentals
+      </a>
+      <a href="../profile/index.html" class="nav-item">
+        <span class="material-icons">person</span>
+        Profile
+      </a>
+      <a href="../support/index.html" class="nav-item">
+        <span class="material-icons">help</span>
+        Support
+      </a>
+    </nav>
+
+    <script>
+      document.querySelectorAll(".nav-item").forEach((item) => {
+        item.addEventListener("click", function () {
+          document.querySelectorAll(".nav-item").forEach((nav) => {
+            nav.classList.remove("active");
+          });
+          this.classList.add("active");
+        });
+      });
+
+      function createCarCard(car) {
+        return `
+          <div class="car-card">
+            <div class="car-image-container">
+              <button class="info-button" onclick="window.location.href='pages/car-details/index.html?id=${car.id}&name=${car.name}&image=${car.image}&price=${car.price}&seats=${car.seats}&transmission=${car.transmission}'">
+                <span class="material-icons">info</span>
+              </button>
+              <img src="${car.image}" alt="${car.name}" class="car-image">
+            </div>
+            <div class="car-details">
+              <div class="car-name">${car.name}</div>
+              <div class="car-specs">${car.seats} • ${car.transmission}</div>
+              <div class="car-price">${car.price}</div>
+            </div>
+          </div>
+        `;
+      }
+    </script>
+  </body>
+</html>
